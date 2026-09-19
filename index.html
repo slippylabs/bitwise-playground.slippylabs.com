@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bitwise Playground // bitwise-playground.slippylabs.com</title>
+<meta name="description" content="Flip bits and watch every representation follow — AND, OR, XOR, shifts, rotates, sign extension, byte swaps and bitfield extraction at 8 to 128 bits, with two's complement handled properly. Runs entirely in your browser.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://bitwise-playground.slippylabs.com/">
+<meta property="og:title" content="Bitwise Playground // bitwise-playground.slippylabs.com">
+<meta property="og:description" content="Flip bits and watch every representation follow — AND, OR, XOR, shifts, rotates, sign extension, byte swaps and bitfield extraction at 8 to 128 bits, with two's complement handled properly. Runs entirely in your browser.">
+<meta property="og:image" content="https://bitwise-playground.slippylabs.com/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Bitwise Playground // bitwise-playground.slippylabs.com">
+<meta name="twitter:description" content="Flip bits and watch every representation follow — AND, OR, XOR, shifts, rotates, sign extension, byte swaps and bitfield extraction at 8 to 128 bits, with two's complement handled properly. Runs entirely in your browser.">
+<meta name="twitter:image" content="https://bitwise-playground.slippylabs.com/og-image.png">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Ccircle%20cx%3D%2232%22%20cy%3D%2234%22%20r%3D%2222%22%20fill%3D%22%231c8a52%22%20stroke%3D%22%2339ff8f%22%20stroke-width%3D%222%22%2F%3E%3Ccircle%20cx%3D%2220%22%20cy%3D%2216%22%20r%3D%228%22%20fill%3D%22%231c8a52%22%20stroke%3D%22%2339ff8f%22%20stroke-width%3D%222%22%2F%3E%3Ccircle%20cx%3D%2244%22%20cy%3D%2216%22%20r%3D%228%22%20fill%3D%22%231c8a52%22%20stroke%3D%22%2339ff8f%22%20stroke-width%3D%222%22%2F%3E%3C%2Fsvg%3E">
+<meta name="theme-color" content="#050b10">
+<link rel="stylesheet" href="style.css?v=1">
+<script>/* perf-lite: drop blend/blur effects on low-power devices. ?fx=lite or ?fx=full to override (persisted). */
+(function(){try{var k="slippy-fx",m=location.search.match(/[?&]fx=(lite|full)/),v=m?m[1]:localStorage.getItem(k);if(m)localStorage.setItem(k,v);if(v==="lite"||(v!=="full"&&(navigator.hardwareConcurrency||8)<=2))document.documentElement.classList.add("perf-lite");}catch(e){}})();</script>
+</head>
+<body>
+
+<div class="starfield"></div>
+<div class="scanlines"></div>
+
+<main class="page-wrap">
+  <div class="hud-panel wide">
+    <div class="corner tl"></div>
+    <div class="corner tr"></div>
+    <div class="corner bl"></div>
+    <div class="corner br"></div>
+
+    <div class="callsign-row">
+      <div class="toad-avatar-wrap">
+        <svg class="toad-avatar" width="46" height="46" viewBox="0 0 64 64">
+          <circle cx="32" cy="34" r="22" fill="#1c8a52" stroke="#39ff8f" stroke-width="2"/>
+          <circle cx="20" cy="16" r="8" fill="#1c8a52" stroke="#39ff8f" stroke-width="2"/>
+          <circle cx="44" cy="16" r="8" fill="#1c8a52" stroke="#39ff8f" stroke-width="2"/>
+          <circle cx="20" cy="16" r="3.5" fill="#050b10"/>
+          <circle cx="44" cy="16" r="3.5" fill="#050b10"/>
+          <ellipse cx="24" cy="32" rx="4.5" ry="5.5" fill="#050b10"/>
+          <ellipse cx="40" cy="32" rx="4.5" ry="5.5" fill="#050b10"/>
+          <circle cx="24" cy="30" r="1.4" fill="#39ff8f"/>
+          <circle cx="40" cy="30" r="1.4" fill="#39ff8f"/>
+          <path d="M22 42 Q32 48 42 42" stroke="#050b10" stroke-width="2" fill="none" stroke-linecap="round"/>
+        </svg>
+        <div class="lock-reticle"></div>
+      </div>
+      <span class="callsign">Workshop Division // Tool</span>
+      <div class="nav-links">
+        <a href="https://projects.slippylabs.com/" class="logout-link">← Archive</a>
+      </div>
+    </div>
+
+
+    <h1>BITWISE PLAYGROUND</h1>
+    <p class="subtitle">One number, every view of it at once: binary, hex, octal, decimal signed and unsigned, and the bytes in either order. Click a bit and the whole page moves.</p>
+
+    <div class="bw-operands">
+      <div class="tool-field-row">
+        <label class="tool-field-label" for="a-input">A — any base: <code>0x2a</code>, <code>0b101010</code>, <code>0o52</code>, <code>42</code>, <code>-1</code></label>
+        <input class="tool-text-input bw-value" id="a-input" type="text" spellcheck="false"
+               autocapitalize="off" autocomplete="off" value="0xDEADBEEF">
+      </div>
+      <div class="tool-field-row">
+        <label class="tool-field-label" for="b-input">B — the second operand</label>
+        <input class="tool-text-input bw-value" id="b-input" type="text" spellcheck="false"
+               autocapitalize="off" autocomplete="off" value="0x0000FFFF">
+      </div>
+      <div class="tool-field-row">
+        <label class="tool-field-label" for="width-select">Width</label>
+        <select class="tool-select" id="width-select"></select>
+      </div>
+      <div class="tool-field-row">
+        <label class="tool-field-label" for="op-select">Operation</label>
+        <select class="tool-select" id="op-select"></select>
+      </div>
+      <div class="tool-field-row" id="shift-box">
+        <label class="tool-field-label" for="shift-slider">Shift / rotate amount</label>
+        <div class="tool-slider-row">
+          <input type="range" id="shift-slider" min="0" max="64" value="4">
+          <span class="bw-slider-value" id="shift-value">4</span>
+        </div>
+      </div>
+    </div>
+    <p class="tool-note" id="input-error" role="alert"></p>
+
+    <div class="cert-section-label">The bits</div>
+    <p class="tool-note">
+      On a desktop, click any bit of A or B to flip it. Bit 0 is on the right, as it is in every
+      datasheet ever written, and bytes are shaded alternately so you can count them without
+      counting. Thirty-two bits cannot each be a thumb-sized target on a phone, so there the rows
+      are a readout and the boxes above &mdash; which take hex, binary, octal or decimal &mdash;
+      are how you set a value.
+    </p>
+    <div id="bits-host"></div>
+
+    <div class="cert-section-label">The operation, aligned</div>
+    <pre class="tool-output bw-explain" id="explain-out"></pre>
+
+    <div class="cert-section-label">Every representation</div>
+    <div class="net-table-wrap">
+      <table class="net-table" id="repr-table"></table>
+    </div>
+
+    <div class="net-grid" id="stat-host"></div>
+
+    <div class="cert-section-label">Bitfield</div>
+    <div class="bw-field-row">
+      <div class="tool-field-row">
+        <label class="tool-field-label" for="hi-input">High bit</label>
+        <input class="tool-number-input" id="hi-input" type="number" min="0" max="127" value="15">
+      </div>
+      <div class="tool-field-row">
+        <label class="tool-field-label" for="lo-input">Low bit</label>
+        <input class="tool-number-input" id="lo-input" type="number" min="0" max="127" value="8">
+      </div>
+      <div class="tool-field-row">
+        <label class="tool-field-label" for="field-source">From</label>
+        <select class="tool-select" id="field-source">
+          <option value="a">A</option>
+          <option value="b">B</option>
+          <option value="result">Result</option>
+        </select>
+      </div>
+    </div>
+    <pre class="tool-output" id="field-out"></pre>
+    <p class="tool-note">
+      <code>value[hi:lo]</code>, the way Verilog writes it: the bits from <code>lo</code> up to and
+      including <code>hi</code>, shifted down to the bottom. Reading a register field, unpacking a
+      float's exponent, or pulling the opcode out of an instruction is all the same operation.
+    </p>
+
+    <p class="tool-note">
+      Shifts and rotates here follow the rules that are actually written down rather than whatever a
+      particular CPU does with an out-of-range count: a shift of <em>width</em> or more gives zero
+      (or all sign bits, for an arithmetic right shift), and a rotate is taken modulo the width. C
+      leaves the first case undefined and x86 quietly masks the count to 5 or 6 bits, which is a
+      classic source of code that works until it is recompiled.
+    </p>
+    <div class="comm-window">
+      <div class="comm-portrait">
+        <svg width="36" height="36" viewBox="0 0 64 64">
+          <circle cx="32" cy="34" r="22" fill="#1c8a52" stroke="#39ff8f" stroke-width="2"/>
+          <circle cx="20" cy="16" r="8" fill="#1c8a52" stroke="#39ff8f" stroke-width="2"/>
+          <circle cx="44" cy="16" r="8" fill="#1c8a52" stroke="#39ff8f" stroke-width="2"/>
+          <circle cx="20" cy="16" r="3.5" fill="#050b10"/>
+          <circle cx="44" cy="16" r="3.5" fill="#050b10"/>
+          <ellipse cx="24" cy="32" rx="4.5" ry="5.5" fill="#050b10"/>
+          <ellipse cx="40" cy="32" rx="4.5" ry="5.5" fill="#050b10"/>
+          <circle cx="24" cy="30" r="1.4" fill="#39ff8f"/>
+          <circle cx="40" cy="30" r="1.4" fill="#39ff8f"/>
+          <path d="M22 42 Q32 48 42 42" stroke="#050b10" stroke-width="2" fill="none" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="comm-body">
+        <div class="comm-label"><span class="dot"></span> Incoming Transmission &mdash; Slippy</div>
+        <p>&quot;Two's complement is not a trick. It is just counting backwards from zero and letting it wrap.&quot;</p>
+      </div>
+    </div>
+
+    <a href="https://projects.slippylabs.com/" class="hud-btn">← Back to Archive</a>
+  </div>
+</main>
+
+
+<script>
+/* ---- fixed-width integer arithmetic ---------------------------------------
+   Every value is a BigInt held as the UNSIGNED representation at the chosen
+   width, and converted to signed only for display. That is the only way to do
+   this without lying: JavaScript's own bitwise operators coerce to 32-bit
+   signed, so `0xDEADBEEF | 0` is negative and `1 << 32` is 1. A tool about bits
+   cannot inherit those.
+
+   Shift and rotate semantics are stated rather than inherited: a shift of width
+   or more gives zero (all sign bits for an arithmetic right shift), and a
+   rotate is taken modulo the width. C calls the first case undefined behaviour
+   and x86 masks the count to 5 or 6 bits, so there is no "natural" answer to
+   copy — only a documented one. */
+
+const WIDTHS = [8, 16, 32, 64, 128];
+
+const maskOf = (width) => (1n << BigInt(width)) - 1n;
+
+function toUnsigned(value, width) {
+  const m = maskOf(width);
+  return ((value % (m + 1n)) + m + 1n) & m;
+}
+
+function toSigned(value, width) {
+  const u = toUnsigned(value, width);
+  const half = 1n << BigInt(width - 1);
+  return u >= half ? u - (1n << BigInt(width)) : u;
+}
+
+/* Parse in any base, with an optional sign and underscore separators. A
+   negative number is wrapped into its two's complement at the current width,
+   which is what typing -1 into a 32-bit field is asking for. */
+function parseValue(text, width) {
+  const raw = String(text).trim().replace(/_/g, '');
+  if (!raw) throw new Error('Type a number');
+  let neg = false;
+  let body = raw;
+  if (body[0] === '-') { neg = true; body = body.slice(1); }
+  else if (body[0] === '+') body = body.slice(1);
+  let value;
+  if (/^0x[0-9a-f]+$/i.test(body)) value = BigInt(body.toLowerCase());
+  else if (/^0b[01]+$/i.test(body)) value = BigInt(body.toLowerCase());
+  else if (/^0o[0-7]+$/i.test(body)) value = BigInt(body.toLowerCase());
+  else if (/^\d+$/.test(body)) value = BigInt(body);
+  else throw new Error(`"${raw}" is not a number I can read — try 0x2a, 0b101010, 0o52 or 42`);
+  if (neg) value = -value;
+  return toUnsigned(value, width);
+}
+
+const OPS = [
+  { id: 'and', name: 'A AND B', symbol: '&', binary: true },
+  { id: 'or', name: 'A OR B', symbol: '|', binary: true },
+  { id: 'xor', name: 'A XOR B', symbol: '^', binary: true },
+  { id: 'nand', name: 'A NAND B', symbol: '~&', binary: true },
+  { id: 'nor', name: 'A NOR B', symbol: '~|', binary: true },
+  { id: 'xnor', name: 'A XNOR B', symbol: '~^', binary: true },
+  { id: 'andnot', name: 'A AND NOT B', symbol: '&~', binary: true },
+  { id: 'not', name: 'NOT A', symbol: '~', binary: false },
+  { id: 'neg', name: 'Negate A (two’s complement)', symbol: '-', binary: false },
+  { id: 'shl', name: 'A << n', symbol: '<<', binary: false, shift: true },
+  { id: 'shr', name: 'A >> n (logical)', symbol: '>>>', binary: false, shift: true },
+  { id: 'sar', name: 'A >> n (arithmetic)', symbol: '>>', binary: false, shift: true },
+  { id: 'rotl', name: 'Rotate A left n', symbol: '<<<', binary: false, shift: true },
+  { id: 'rotr', name: 'Rotate A right n', symbol: '>>>', binary: false, shift: true },
+  { id: 'reverse', name: 'Reverse the bits of A', symbol: 'rev', binary: false },
+  { id: 'bswap', name: 'Swap A’s bytes (endianness)', symbol: 'bswap', binary: false },
+  { id: 'add', name: 'A + B (wrapping)', symbol: '+', binary: true },
+  { id: 'sub', name: 'A − B (wrapping)', symbol: '−', binary: true },
+  { id: 'mul', name: 'A × B (wrapping)', symbol: '×', binary: true },
+];
+
+function applyOp(op, a, b, width, amount) {
+  const m = maskOf(width);
+  const w = BigInt(width);
+  switch (op) {
+    case 'and': return a & b;
+    case 'or': return a | b;
+    case 'xor': return a ^ b;
+    case 'nand': return (~(a & b)) & m;
+    case 'nor': return (~(a | b)) & m;
+    case 'xnor': return (~(a ^ b)) & m;
+    case 'andnot': return a & ((~b) & m);
+    case 'not': return (~a) & m;
+    case 'neg': return toUnsigned(-a, width);
+    case 'shl': return amount >= width ? 0n : (a << BigInt(amount)) & m;
+    case 'shr': return amount >= width ? 0n : a >> BigInt(amount);
+    case 'sar': {
+      const s = toSigned(a, width);
+      if (amount >= width) return s < 0n ? m : 0n;   // all sign bits, or none
+      return toUnsigned(s >> BigInt(amount), width);
+    }
+    case 'rotl': {
+      const n = BigInt(amount % width);
+      return n === 0n ? a : ((a << n) | (a >> (w - n))) & m;
+    }
+    case 'rotr': {
+      const n = BigInt(amount % width);
+      return n === 0n ? a : ((a >> n) | (a << (w - n))) & m;
+    }
+    case 'reverse': return reverseBits(a, width);
+    case 'bswap': return byteSwap(a, width);
+    case 'add': return toUnsigned(a + b, width);
+    case 'sub': return toUnsigned(a - b, width);
+    case 'mul': return toUnsigned(a * b, width);
+    default: throw new Error(`unknown operation ${op}`);
+  }
+}
+
+function reverseBits(value, width) {
+  let out = 0n;
+  let v = value;
+  for (let i = 0; i < width; i++) {
+    out = (out << 1n) | (v & 1n);
+    v >>= 1n;
+  }
+  return out;
+}
+
+function byteSwap(value, width) {
+  const bytes = width / 8;
+  let out = 0n;
+  let v = value;
+  for (let i = 0; i < bytes; i++) {
+    out = (out << 8n) | (v & 0xffn);
+    v >>= 8n;
+  }
+  return out;
+}
+
+function popcount(value) {
+  let n = 0;
+  let v = value;
+  while (v) { n += Number(v & 1n); v >>= 1n; }
+  return n;
+}
+
+const bitLength = (value) => (value === 0n ? 0 : value.toString(2).length);
+const leadingZeros = (value, width) => width - bitLength(value);
+
+function trailingZeros(value, width) {
+  if (value === 0n) return width;
+  let n = 0;
+  let v = value;
+  while ((v & 1n) === 0n) { v >>= 1n; n += 1; }
+  return n;
+}
+
+/* Sign-extend a value that is only `fromBits` wide into the full width — the
+   operation every "load byte into a register" instruction performs. */
+function signExtend(value, fromBits, width) {
+  const v = value & maskOf(fromBits);
+  const signBit = 1n << BigInt(fromBits - 1);
+  return toUnsigned((v & signBit) ? v - (1n << BigInt(fromBits)) : v, width);
+}
+
+/* value[hi:lo], Verilog order: inclusive at both ends, shifted down. */
+function extractField(value, hi, lo) {
+  if (hi < lo) throw new Error('the high bit must not be below the low bit');
+  return (value >> BigInt(lo)) & maskOf(hi - lo + 1);
+}
+
+function toBytes(value, width, endian = 'be') {
+  const out = [];
+  for (let i = width / 8 - 1; i >= 0; i--) out.push(Number((value >> BigInt(i * 8)) & 0xffn));
+  return endian === 'le' ? out.reverse() : out;
+}
+
+function formatBinary(value, width, group = 8) {
+  const bits = value.toString(2).padStart(width, '0');
+  const parts = [];
+  for (let i = 0; i < bits.length; i += group) parts.push(bits.slice(i, i + group));
+  return parts.join(' ');
+}
+
+function formatHex(value, width) {
+  return `0x${value.toString(16).toUpperCase().padStart(width / 4, '0')}`;
+}
+
+function asciiOf(bytes) {
+  return bytes.map((b) => (b >= 32 && b < 127 ? String.fromCharCode(b) : '·')).join('');
+}
+
+function isPowerOfTwo(value) {
+  return value > 0n && (value & (value - 1n)) === 0n;
+}
+
+/* ==== UI ==== */
+
+const $ = (id) => document.getElementById(id);
+
+let width = 32;
+let a = 0n;
+let b = 0n;
+let result = 0n;
+
+$('width-select').innerHTML = WIDTHS.map((w) => `<option value="${w}"${w === 32 ? ' selected' : ''}>${w}-bit</option>`).join('');
+$('op-select').innerHTML = OPS.map((o) => `<option value="${o.id}"${o.id === 'and' ? ' selected' : ''}>${o.name}</option>`).join('');
+
+function currentOp() {
+  return OPS.find((o) => o.id === $('op-select').value) || OPS[0];
+}
+
+function recompute() {
+  const err = $('input-error');
+  width = Number($('width-select').value);
+  const op = currentOp();
+  $('shift-box').style.visibility = op.shift ? 'visible' : 'hidden';
+  $('shift-slider').max = String(width * 2);
+  const amount = Math.min(Number($('shift-slider').value), width * 2);
+  try {
+    a = parseValue($('a-input').value, width);
+    b = parseValue($('b-input').value, width);
+    err.style.display = 'none';
+  } catch (e) {
+    err.textContent = e.message;
+    err.style.display = 'block';
+    return;
+  }
+  result = applyOp(op.id, a, b, width, amount);
+  $('hi-input').max = String(width - 1);
+  $('lo-input').max = String(width - 1);
+  render(op, amount);
+}
+
+/* Bits are spans, not buttons, and only become real controls where there is
+   room for them to be thumb-sized. Thirty-two of them at 44px would need a
+   1400px-wide screen and 128 would need 5600px, so below the phone breakpoint
+   they are a readout and the text inputs — which are full-size, and accept any
+   base — are how a value gets set. Same rule as the float inspector's bit
+   strip: when the targets must be smaller than a thumb, give a second
+   affordance rather than a bigger hit area. */
+const PHONE = () => window.matchMedia('(max-width: 560px)').matches;
+
+function bitRow(label, value, editable) {
+  const cells = [];
+  const live = editable && !PHONE();
+  for (let i = width - 1; i >= 0; i--) {
+    const on = ((value >> BigInt(i)) & 1n) === 1n;
+    const byteIndex = Math.floor(i / 8);
+    cells.push(`<span class="bw-bit${on ? ' on' : ''}${byteIndex % 2 ? ' alt' : ''}${live ? ' live' : ''}"
+      ${live ? `role="button" tabindex="0" data-target="${label.toLowerCase()}" data-bit="${i}"` : ''}
+      title="bit ${i}">${on ? 1 : 0}</span>`);
+  }
+  return `<div class="bw-row">
+      <div class="bw-row-label">${label}</div>
+      <div class="bw-bits">${cells.join('')}</div>
+    </div>`;
+}
+
+function render(op, amount) {
+  const rows = [bitRow('A', a, true)];
+  if (op.binary) rows.push(bitRow('B', b, true));
+  rows.push(bitRow('Result', result, false));
+  // a ruler every 8 bits, so bit 23 is findable without counting
+  const ticks = [];
+  for (let i = width - 1; i >= 0; i--) ticks.push(`<span class="bw-tick">${i % 8 === 0 || i === width - 1 ? i : ''}</span>`);
+  $('bits-host').innerHTML = `${rows.join('')}
+    <div class="bw-row"><div class="bw-row-label"></div><div class="bw-bits">${ticks.join('')}</div></div>`;
+
+  const lines = [];
+  const pad = (s) => s.padStart(10, ' ');
+  lines.push(`${pad('A')}  ${formatBinary(a, width)}`);
+  if (op.binary) lines.push(`${pad('B')}  ${formatBinary(b, width)}`);
+  if (op.shift) lines.push(`${pad('amount')}  ${amount}${amount >= width ? `  (>= width: ${op.id === 'sar' ? 'all sign bits' : op.id.startsWith('rot') ? `taken as ${amount % width}` : 'zero'})` : ''}`);
+  lines.push(`${pad(op.symbol)}  ${'-'.repeat(formatBinary(a, width).length)}`);
+  lines.push(`${pad('=')}  ${formatBinary(result, width)}`);
+  lines.push('');
+  lines.push(`${pad('')}  ${formatHex(result, width)}   unsigned ${result}   signed ${toSigned(result, width)}`);
+  $('explain-out').textContent = lines.join('\n');
+
+  const be = toBytes(result, width, 'be');
+  const le = toBytes(result, width, 'le');
+  const reprRows = [
+    ['Binary', formatBinary(result, width)],
+    ['Hex', formatHex(result, width)],
+    ['Octal', `0o${result.toString(8)}`],
+    ['Decimal, unsigned', result.toString()],
+    ['Decimal, signed', toSigned(result, width).toString()],
+    ['Bytes, big endian', be.map((x) => x.toString(16).padStart(2, '0')).join(' ')],
+    ['Bytes, little endian', le.map((x) => x.toString(16).padStart(2, '0')).join(' ')],
+    ['ASCII, big endian', asciiOf(be)],
+  ];
+  $('repr-table').innerHTML = `<thead><tr><th>Representation</th><th>Result</th></tr></thead><tbody>${
+    reprRows.map(([k, v]) => `<tr><td>${k}</td><td>${v}</td></tr>`).join('')}</tbody>`;
+
+  const tiles = [
+    ['Set bits', String(popcount(result))],
+    ['Leading zeros', String(leadingZeros(result, width))],
+    ['Trailing zeros', String(trailingZeros(result, width))],
+    ['Parity', popcount(result) % 2 ? 'odd' : 'even'],
+    ['Bit length', String(bitLength(result))],
+    ['Power of two', isPowerOfTwo(result) ? `yes, 2^${bitLength(result) - 1}` : 'no'],
+  ];
+  $('stat-host').innerHTML = tiles.map(([label, value]) => `
+    <div class="net-tile">
+      <div class="net-tile-label">${label}</div>
+      <div class="net-tile-value mono">${value}</div>
+    </div>`).join('');
+
+  renderField();
+}
+
+function renderField() {
+  const hi = Math.min(width - 1, Math.max(0, Number($('hi-input').value) || 0));
+  const lo = Math.min(width - 1, Math.max(0, Number($('lo-input').value) || 0));
+  const src = $('field-source').value;
+  const value = src === 'a' ? a : src === 'b' ? b : result;
+  const out = $('field-out');
+  if (hi < lo) {
+    out.textContent = 'The high bit must not be below the low bit.';
+    return;
+  }
+  const bits = hi - lo + 1;
+  const field = extractField(value, hi, lo);
+  const lines = [
+    `${src.toUpperCase()}[${hi}:${lo}]  ${bits} bit${bits === 1 ? '' : 's'}`,
+    '',
+    `binary    ${formatBinary(field, Math.max(4, Math.ceil(bits / 4) * 4))}`,
+    `hex       0x${field.toString(16).toUpperCase()}`,
+    `unsigned  ${field}`,
+    `signed    ${toSigned(field, bits)}`,
+    '',
+    `sign-extended to ${width} bits: ${formatHex(signExtend(field, bits, width), width)}`,
+    `mask for this field: ${formatHex((maskOf(bits) << BigInt(lo)) & maskOf(width), width)}`,
+  ];
+  out.textContent = lines.join('\n');
+}
+
+/* ---- input ---- */
+
+function flipBitFrom(btn) {
+  if (!btn || !btn.classList.contains('live')) return;
+  const bit = BigInt(btn.dataset.bit);
+  const target = btn.dataset.target;
+  if (target === 'a') {
+    a ^= 1n << bit;
+    $('a-input').value = formatHex(a, width);
+  } else if (target === 'b') {
+    b ^= 1n << bit;
+    $('b-input').value = formatHex(b, width);
+  }
+  recompute();
+}
+
+$('bits-host').addEventListener('click', (e) => flipBitFrom(e.target.closest('.bw-bit')));
+$('bits-host').addEventListener('keydown', (e) => {
+  if (e.key !== 'Enter' && e.key !== ' ') return;
+  const btn = e.target.closest('.bw-bit');
+  if (!btn || !btn.classList.contains('live')) return;
+  e.preventDefault();
+  flipBitFrom(btn);
+});
+// rotating a phone crosses the breakpoint, and with it whether bits are controls
+window.matchMedia('(max-width: 560px)').addEventListener('change', () => recompute());
+
+['a-input', 'b-input'].forEach((id) => $(id).addEventListener('input', recompute));
+['width-select', 'op-select', 'field-source'].forEach((id) =>
+  $(id).addEventListener('change', recompute));
+$('shift-slider').addEventListener('input', (e) => {
+  $('shift-value').textContent = e.target.value;
+  recompute();
+});
+['hi-input', 'lo-input'].forEach((id) => $(id).addEventListener('input', renderField));
+
+/* ---- headless hook ---- */
+
+window.__bitwise = {
+  parseValue, applyOp, toUnsigned, toSigned, maskOf, reverseBits, byteSwap,
+  popcount, bitLength, leadingZeros, trailingZeros, signExtend, extractField,
+  toBytes, formatBinary, formatHex, asciiOf, isPowerOfTwo, OPS, WIDTHS,
+  set(opts) {
+    if (opts.a !== undefined) $('a-input').value = opts.a;
+    if (opts.b !== undefined) $('b-input').value = opts.b;
+    if (opts.width) $('width-select').value = String(opts.width);
+    if (opts.op) $('op-select').value = opts.op;
+    if (opts.amount !== undefined) {
+      $('shift-slider').value = String(opts.amount);
+      $('shift-value').textContent = String(opts.amount);
+    }
+    recompute();
+    return { a: a.toString(), b: b.toString(), result: result.toString(), width };
+  },
+  get state() {
+    return { a: a.toString(), b: b.toString(), result: result.toString(), width };
+  },
+};
+
+/* ---- boot ---- */
+
+recompute();
+</script>
+<!-- Slippy Deck: floating Slippy TV + jukebox player. Renders nothing unless admin.slippylabs.com/whoami confirms a signed-in account. -->
+<script defer src="https://slippylabs.com/deck/deck.js"></script>
+<!-- Slippy Labs sitewide privacy link. Self-contained on purpose: these sites
+     share no CSS, so it carries its own styles and inherits the page's text
+     colour instead of assuming a palette. position/z-index are load bearing --
+     the HUD theme's .starfield/.scanlines are fixed at z-index 0-1 and would
+     paint straight over an unpositioned footer.
+     The .page-wrap trim below is what keeps the bar on the first screen. -->
+<div class="sl-legal"><a href="https://slippylabs.com/privacy.html">Privacy</a></div>
+<style>
+.sl-legal{box-sizing:border-box;position:relative;z-index:3;height:64px;display:flex;align-items:center;justify-content:center;margin:0;padding:0 12px;font-family:"Consolas","SFMono-Regular",Menlo,Monaco,"Courier New",monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;opacity:.5}
+.sl-legal a{color:inherit;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 14px}
+.sl-legal a:hover,.sl-legal a:focus-visible{text-decoration:underline;opacity:1}
+/* This page centres .page-wrap at min-height:100vh, which would push the bar a
+   whole screen below the fold. Give back exactly the bar height instead of
+   adding a scrollbar to a page that had none. */
+.page-wrap{min-height:calc(100vh - 64px)}
+</style>
+</body>
+</html>
