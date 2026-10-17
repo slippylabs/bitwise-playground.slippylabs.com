@@ -18,7 +18,7 @@
 <meta name="twitter:image" content="https://bitwise-playground.slippylabs.com/og-image.png?h=166a1c06ae">
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Ccircle%20cx%3D%2232%22%20cy%3D%2234%22%20r%3D%2222%22%20fill%3D%22%231c8a52%22%20stroke%3D%22%2339ff8f%22%20stroke-width%3D%222%22%2F%3E%3Ccircle%20cx%3D%2220%22%20cy%3D%2216%22%20r%3D%228%22%20fill%3D%22%231c8a52%22%20stroke%3D%22%2339ff8f%22%20stroke-width%3D%222%22%2F%3E%3Ccircle%20cx%3D%2244%22%20cy%3D%2216%22%20r%3D%228%22%20fill%3D%22%231c8a52%22%20stroke%3D%22%2339ff8f%22%20stroke-width%3D%222%22%2F%3E%3C%2Fsvg%3E">
 <meta name="theme-color" content="#050b10">
-<link rel="stylesheet" href="style.css?v=2">
+<link rel="stylesheet" href="style.css?v=3">
 <script>/* perf-lite: drop blend/blur effects on low-power devices. ?fx=lite or ?fx=full to override (persisted). */
 (function(){try{var k="slippy-fx",m=location.search.match(/[?&]fx=(lite|full)/),v=m?m[1]:localStorage.getItem(k);if(m)localStorage.setItem(k,v);if(v==="lite"||(v!=="full"&&(navigator.hardwareConcurrency||8)<=2))document.documentElement.classList.add("perf-lite");}catch(e){}})();</script>
 </head>
@@ -392,24 +392,21 @@ function recompute() {
   render(op, amount);
 }
 
-/* Bits are spans, not buttons, and only become real controls where there is
-   room for them to be thumb-sized. Thirty-two of them at 44px would need a
-   1400px-wide screen and 128 would need 5600px, so below the phone breakpoint
-   they are a readout and the text inputs — which are full-size, and accept any
-   base — are how a value gets set. Same rule as the float inspector's bit
-   strip: when the targets must be smaller than a thumb, give a second
-   affordance rather than a bigger hit area. */
-const PHONE = () => window.matchMedia('(max-width: 560px)').matches;
+/* Bits are spans with role=button. On a phone a 32-bit row cannot be one
+   line of thumb-sized targets, so below the phone breakpoint the CSS lays each
+   value out a byte per line (8 columns of ~34x44px) and every cell carries its
+   bit number in a corner, which stands in for the ruler row. The text inputs,
+   which accept any base, remain the faster way to type a whole value. */
 
 function bitRow(label, value, editable) {
   const cells = [];
-  const live = editable && !PHONE();
+  const live = editable;
   for (let i = width - 1; i >= 0; i--) {
     const on = ((value >> BigInt(i)) & 1n) === 1n;
     const byteIndex = Math.floor(i / 8);
     cells.push(`<span class="bw-bit${on ? ' on' : ''}${byteIndex % 2 ? ' alt' : ''}${live ? ' live' : ''}"
       ${live ? `role="button" tabindex="0" data-target="${label.toLowerCase()}" data-bit="${i}"` : ''}
-      title="bit ${i}">${on ? 1 : 0}</span>`);
+      data-i="${i}" title="bit ${i}">${on ? 1 : 0}</span>`);
   }
   return `<div class="bw-row">
       <div class="bw-row-label">${label}</div>
@@ -425,7 +422,7 @@ function render(op, amount) {
   const ticks = [];
   for (let i = width - 1; i >= 0; i--) ticks.push(`<span class="bw-tick">${i % 8 === 0 || i === width - 1 ? i : ''}</span>`);
   $('bits-host').innerHTML = `${rows.join('')}
-    <div class="bw-row"><div class="bw-row-label"></div><div class="bw-bits">${ticks.join('')}</div></div>`;
+    <div class="bw-row bw-ruler"><div class="bw-row-label"></div><div class="bw-bits">${ticks.join('')}</div></div>`;
 
   const lines = [];
   const pad = (s) => s.padStart(10, ' ');
