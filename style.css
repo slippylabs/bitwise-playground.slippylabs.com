@@ -1469,12 +1469,22 @@ mark.regex-match { background: rgba(57, 255, 143, 0.3); color: var(--hud-green);
 .bw-field-row .tool-select { width: 100%; }
 
 @media (max-width: 560px) {
-  /* A 128-bit row cannot give every bit a 44px target — 128 of them would need
-     a 5600px screen. The bits stay a compact grid and the text inputs, which
-     are full-size, are the way to set a value by thumb. */
-  .bw-bit { width: 20px; padding: 9px 0; }
-  .bw-tick { width: 20px; }
-  .bw-row-label { width: 40px; flex-basis: 40px; font-size: 0.6rem; }
+  /* A value cannot be one line of thumb-sized bits on a phone, so each row
+     becomes its label on a line of its own over a grid of 8 columns: one byte
+     per line, MSB first, ~34x44px a bit and tappable. Each bit shows its
+     number in the corner, which replaces the ruler row. */
+  .bw-row { flex-wrap: wrap; gap: 4px; margin-bottom: 12px; }
+  .bw-row-label { width: 100%; flex-basis: 100%; text-align: left; font-size: 0.6rem; }
+  .bw-bits { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 3px; flex: 1 1 100%; }
+  .bw-bit {
+    width: auto; min-height: 44px; padding: 0; position: relative;
+    display: flex; align-items: center; justify-content: center; font-size: 0.85rem;
+  }
+  .bw-bit::after {
+    content: attr(data-i); position: absolute; top: 2px; left: 3px;
+    font-size: 0.5rem; line-height: 1; opacity: 0.6;
+  }
+  .bw-ruler { display: none; }
   .bw-explain { font-size: 0.66rem; }
 }
 
@@ -1503,4 +1513,19 @@ mark.regex-match { background: rgba(57, 255, 143, 0.3); color: var(--hud-green);
   a.dl, .login-btn { min-height: 44px; display: inline-flex; align-items: center; }
   input[type="range"] { height: 44px; }
   .swatch-lock { width: 40px; height: 40px; }
+}
+
+/* A phone held sideways (~780px) misses the 560px block above and got the
+   desktop strip, 17px a bit. Two lines of 16 per 32 bits: ~40x44px each. */
+@media (hover: none) and (pointer: coarse) and (max-height: 500px) {
+  .bw-bits { display: grid; grid-template-columns: repeat(16, minmax(0, 1fr)); gap: 3px; flex: 1 1 auto; }
+  .bw-bit {
+    width: auto; min-height: 44px; padding: 0; position: relative;
+    display: flex; align-items: center; justify-content: center; font-size: 0.85rem;
+  }
+  .bw-bit::after {
+    content: attr(data-i); position: absolute; top: 2px; left: 3px;
+    font-size: 0.5rem; line-height: 1; opacity: 0.6;
+  }
+  .bw-ruler { display: none; }
 }
